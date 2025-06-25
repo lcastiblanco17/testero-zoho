@@ -18,6 +18,7 @@ class BulkRead(object):
         """
 
         # Get instance of BulkReadOperations Class
+        #creamos la instancia igual que en los anteriores archivos, si nos fijamos bien el patron se repite 
         bulk_read_operations = BulkReadOperations()
 
         # Call download_result method that takes job_id as parameter
@@ -44,9 +45,11 @@ class BulkRead(object):
                     stream_wrapper = response_object.get_file()
 
                     # Construct the file name by joining the destinationFolder and the name from StreamWrapper instance
+                    #En esta linea definimos donde se va almacenar el dataset y ademas especificando el nombre que va a tener el archivo.
                     file_name = os.path.join(destination_folder, stream_wrapper.get_name())
 
                     # Open the destination file where the file needs to be written in 'wb' mode
+                    #Abrimos el directorio para guardar el archivo en el formato especificado en este caso csv
                     with open(file_name, 'wb') as f:
                         # Get the stream from StreamWrapper instance
                         for chunk in stream_wrapper.get_stream():
@@ -55,6 +58,8 @@ class BulkRead(object):
                         f.close()
 
                 # Check if the request returned an exception
+                #En caso de que no se pueda completar la descarga lanzamos esta excepcion y los detalles en tipo diccionario como json
+
                 elif isinstance(response_object, APIException):
                     # Get the Status
                     print("Status: " + response_object.get_status().get_value())
