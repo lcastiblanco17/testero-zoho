@@ -1,4 +1,5 @@
 
+#Librerias necesarias para hacer la comprobacion de estado del trabajo
 import os
 from zcrmsdk.src.com.zoho.crm.api.bulk_read import *
 from zcrmsdk.src.com.zoho.crm.api.util import Choice
@@ -17,16 +18,21 @@ class BulkRead(object):
         """
 
         # Get instance of BulkReadOperations Class
+        #Define igual que en la creacion del trabajo la instancia de bulkread
         bulk_read_operations = BulkReadOperations()
 
         # Call get_bulk_read_job_details method that takes jobId as parameter
+        #consultamos el job_id que nos genero el bulkread anterior de la creacion
         response = bulk_read_operations.get_bulk_read_job_details(job_id)
 
+        #Comprueba que la respuesta tenga informacion para evitar procesos mal hechos y que se verifique que se realizo y se ejecuto el codigo anterior
         if response is not None:
 
             # Get the status code from response
+            #obtiene de nuevo el estado del job_id
             print('Status Code: ' + str(response.get_status_code()))
 
+            # se verifica si el estado nos indica que o no hay datos o contenido, o si no se ha mdificado nada desde la ultima ejecucion(esto solo cuenta si ya se ejecuto una vez y pues creo que con los mismo parametros com page y query)
             if response.get_status_code() in [204, 304]:
                 print('No Content' if response.get_status_code() == 204 else 'Not Modified')
                 return
@@ -37,6 +43,7 @@ class BulkRead(object):
             if response_object is not None:
 
                 # Check if expected ResponseWrapper instance is received
+                #hace comprobaciones similares a las que se hacen en la parte de creacion del trabajo
                 if isinstance(response_object, ResponseWrapper):
 
                     # Get the list of JobDetail instances
@@ -54,7 +61,7 @@ class BulkRead(object):
 
                         # Get the Result instance of each jobDetail
                         result = job_detail.get_result()
-
+                        #Aqui es donde obtenemos mas detalles sobre la conulta tipo pagina, conteo de filas extraidas, el url de descarga que nos pasa zoho, el numero de registros por pagina y un bool que nos dice si quedan o no mas registros
                         if result is not None:
                             # Get the Page of the Result
                             print("Bulkread Result Page: " + str(result.get_page()))
@@ -72,6 +79,7 @@ class BulkRead(object):
                             print("Bulkread Result MoreRecords: " + str(result.get_more_records()))
 
                         # Get the Query instance of each jobDetail
+                        #Obtiene informacion de la consulta que se especifico mas en cuanto al filtrado
                         query = job_detail.get_query()
 
                         if query is not None:
@@ -116,6 +124,8 @@ class BulkRead(object):
                             print("Bulkread File Type: " + job_detail.get_file_type())
 
                 # Check if the request returned an exception
+                # esto es en caso de que ocurra algun error de configuracion, etc
+                # me devueve los detalles en tipo json o diccionario
                 elif isinstance(response_object, APIException):
                     # Get the Status
                     print("Status: " + response_object.get_status().get_value())
